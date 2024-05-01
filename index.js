@@ -1,14 +1,12 @@
-// index.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const User = require('./models/User');
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
-// Endpoint de login (vulnerável a SQL Injection)
+
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const user = await User.findOne({ where: { username, password } });
@@ -19,18 +17,18 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Endpoint de listagem de usuários (expondo dados sensíveis)
+
 app.get('/users', async (req, res) => {
-  const users = await User.findAll({ attributes: ['id', 'username', 'password'] });
+  const users = await User.findAll({ attributes: ['id', 'username'] });
   res.json(users);
 });
 
-// Endpoint de detalhe do usuário logado (expondo senha)
+
 app.get('/profile', async (req, res) => {
   const { username } = req.query;
   const user = await User.findOne({ where: { username: username ?? null } });
   if (user) {
-    res.json(user);
+    res.json({ id: user.id, username: user.username });
   } else {
     res.status(404).json({ message: 'User not found' });
   }
